@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FO-Map Pro - ADSS 24 Core Edition</title>
+    <!-- Font Awesome untuk Icon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-weight/6.4.0/css/all.min.css">
+    <!-- Leaflet CSS untuk Peta -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #0b111e;
+            color: #ffffff;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* HEADER */
+        header {
+            background-color: #111827;
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #1f2937;
+        }
+
+        .brand-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-icon {
+            background-color: #3b82f6;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 20px;
+        }
+
+        .brand-title h1 {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .brand-title h1 span {
+            background-color: #3730a3;
+            color: #c7d2fe;
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        .brand-title p {
+            font-size: 12px;
+            color: #9ca3af;
+            margin-top: 2px;
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background-color: #4f46e5;
+            color: white;
+        }
+
+        .btn-secondary {
+            background-color: #1f2937;
+            color: #d1d5db;
+            border: 1px solid #374151;
+        }
+
+        /* MAIN LAYOUT */
+        .main-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* SIDEBAR (LEFT) */
+        .sidebar {
+            width: 320px;
+            background-color: #0f172a;
+            border-right: 1px solid #1e293b;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            overflow-y: auto;
+        }
+
+        /* STATS CARDS */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .stat-card {
+            background-color: #0b111e;
+            border: 1px solid #1e293b;
+            border-radius: 6px;
+            padding: 12px 5px;
+            text-align: center;
+        }
+
+        .stat-card p {
+            font-size: 11px;
+            color: #94a3b8;
+            margin-bottom: 5px;
+        }
+
+        .stat-card h3 {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .stat-odc { color: #3b82f6; }
+        .stat-odp { color: #10b981; }
+        .stat-client { color: #60a5fa; }
+
+        /* FORM BOX */
+        .form-box {
+            background-color: #0b111e;
+            border: 1px solid #1e293b;
+            border-radius: 8px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .form-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .form-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #60a5fa;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-subtitle {
+            font-size: 10px;
+            color: #64748b;
+            font-style: italic;
+        }
+
+        .tips-box {
+            background-color: #0c1530;
+            border: 1px solid #1e3a8a;
+            border-radius: 6px;
+            padding: 10px;
+            font-size: 11px;
+            color: #93c5fd;
+            line-height: 1.4;
+        }
+
+        .tips-box strong {
+            color: #3b82f6;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .input-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        label {
+            font-size: 11px;
+            color: #94a3b8;
+        }
+
+        input, select {
+            background-color: #1e293b;
+            border: 1px solid #334155;
+            color: white;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 13px;
+            outline: none;
+            width: 100%;
+        }
+
+        input::placeholder {
+            color: #64748b;
+        }
+
+        input:focus, select:focus {
+            border-color: #4f46e5;
+        }
+
+        /* MAP AREA (RIGHT) */
+        .map-container {
+            flex: 1;
+            background-color: #050b14;
+            position: relative;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER -->
+    <header>
+        <div class="brand-section">
+            <div class="logo-icon">
+                <i class="fas fa-network-wired"></i>
+            </div>
+            <div class="brand-title">
+                <h1>FO-Map Pro <span>ADSS 24 Core Edition</span></h1>
+                <p>Aplikasi Simulasi & Perencanaan FTTH dari 0</p>
+            </div>
+        </div>
+        <div class="header-buttons">
+            <button class="btn btn-primary"><i class="fas fa-map-marked-alt"></i> Peta & Core Manager</button>
+            <button class="btn btn-secondary"><i class="fas fa-book"></i> Panduan Pembuatan (Mulai dari 0)</button>
+        </div>
+    </header>
+
+    <!-- MAIN LAYOUT -->
+    <div class="main-container">
+        
+        <!-- SIDEBAR FORM -->
+        <div class="sidebar">
+            
+            <!-- TOP COUNTER -->
+            <div class="stats-container">
+                <div class="stat-card">
+                    <p>Total ODC</p>
+                    <h3 class="stat-odc">1</h3>
+                </div>
+                <div class="stat-card">
+                    <p>Total ODP</p>
+                    <h3 class="stat-odp">2</h3>
+                </div>
+                <div class="stat-card">
+                    <p>Client Baru</p>
+                    <h3 class="stat-client">3</h3>
+                </div>
+            </div>
+
+            <!-- FORM TAMBAH CLIENT -->
+            <div class="form-box">
+                <div class="form-header">
+                    <div class="form-title">
+                        <i class="fas fa-user-plus"></i> TAMBAH CLIENT BARU
+                    </div>
+                    <div class="form-subtitle">tim lapangan</div>
+                </div>
+
+                <div class="tips-box">
+                    <i class="fas fa-info-circle"></i> <strong>Tips:</strong> Klik area mana saja pada peta sebelah kanan untuk <strong>mengunci Tikor secara Instan</strong> (Simulasi GPS teknisi).
+                </div>
+
+                <div class="input-group">
+                    <label>Nama Pelanggan</label>
+                    <input type="text" id="nama_pelanggan" placeholder="Contoh: Budi Santoso">
+                </div>
+
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>Tikor (Latitude)</label>
+                        <input type="number" id="lat" value="-6.2088" step="0.0001">
+                    </div>
+                    <div class="input-group">
+                        <label>Tikor (Longitude)</label>
+                        <input type="number" id="lng" value="106.8456" step="0.0001">
+                    </div>
+                </div>
+
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>Pilih ODP Terdekat</label>
+                        <select id="odp_select">
+                            <option>ODP-A01 (ODP RT 01)</option>
+                            <option>ODP-A02 (ODP RT 02)</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Port ODP</label>
+                        <select id="port_select">
+                            <option>Port 1</option>
+                            <option>Port 2</option>
+                            <option>Port 3</option>
+                            <option>Port 4</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Redaman Hasil Ukur OPM (dBm)</label>
+                    <input type="text" id="redaman" value="-19.5">
+                </div>
+            </div>
+
+        </div>
+
+        <!-- AREA PETA -->
+        <div class="map-container">
+            <div id="map"></div>
+        </div>
+
+    </div>
+
+    <!-- Leaflet JS untuk mengaktifkan Peta -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // 1. Inisialisasi Peta (Default koordinat Jakarta sesuai gambar: -6.2088, 106.8456)
+        const defaultLat = -6.2088;
+        const defaultLng = 106.8456;
+        
+        const map = L.map('map').setView([defaultLat, defaultLng], 13);
+
+        // 2. Menggunakan tema peta Dark Mode agar serasi dengan Dashboard
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+            subdomains: 'abcd',
+            maxZoom: 20
+        }).addTo(map);
+
+        // 3. Tambahkan Marker (Penanda) awal di peta
+        let marker = L.marker([defaultLat, defaultLng]).addTo(map)
+            .bindPopup('Lokasi Client Baru')
+            .openPopup();
+
+        // 4. Fitur Interaktif: Klik peta untuk mengubah koordinat di Form secara otomatis
+        map.on('click', function(e) {
+            const clickedLat = e.latlng.lat.toFixed(6);
+            const clickedLng = e.latlng.lng.toFixed(6);
+
+            // Update nilai di dalam input form
+            document.getElementById('lat').value = clickedLat;
+            document.getElementById('lng').value = clickedLng;
+
+            // Pindahkan posisi penanda (marker) ke titik yang diklik
+            marker.setLatLng(e.latlng);
+            marker.setPopupContent(`Koordinat Terkunci: <br> ${clickedLat}, ${clickedLng}`).openPopup();
+        });
+
+        // 5. Fitur Interaktif: Jika angka koordinat di form diketik manual, peta ikut bergeser
+        document.getElementById('lat').addEventListener('input', updateMarkerFromForm);
+        document.getElementById('lng').addEventListener('input', updateMarkerFromForm);
+
+        function updateMarkerFromForm() {
+            const latVal = parseFloat(document.getElementById('lat').value);
+            const lngVal = parseFloat(document.getElementById('lng').value);
+
+            if (!isNaN(latVal) && !isNaN(lngVal)) {
+                const newLatLng = new L.LatLng(latVal, lngVal);
+                marker.setLatLng(newLatLng);
+                map.panTo(newLatLng);
+            }
+        }
+    </style>
+</body>
+</html>
