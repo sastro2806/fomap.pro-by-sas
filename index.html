@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FO-Map Pro - ADSS 24 Core Edition</title>
-    <!-- Font Awesome untuk Icon -->
+    <title>sas.mapping.id - ADSS 24 Core Edition</title>
+    <!-- Font Awesome untuk Icon & Gambar Simbol Map -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-weight/6.4.0/css/all.min.css">
     <!-- Leaflet CSS untuk Peta -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -24,6 +24,7 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            position: relative;
         }
 
         /* HEADER */
@@ -36,366 +37,408 @@
             border-bottom: 1px solid #1f2937;
         }
 
-        .brand-section {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
+        .brand-section { display: flex; align-items: center; gap: 15px; }
+        .logo-icon { background-color: #3b82f6; padding: 10px; border-radius: 8px; font-size: 20px; }
+        .brand-title h1 { font-size: 20px; font-weight: 700; color: #60a5fa; letter-spacing: 0.5px; }
+        .brand-title h1 span { background-color: #3730a3; color: #c7d2fe; font-size: 11px; padding: 2px 6px; border-radius: 4px; margin-left: 8px; vertical-align: middle; font-weight: 600; }
+        .brand-title p { font-size: 12px; color: #9ca3af; margin-top: 2px; }
+        .header-buttons { display: flex; gap: 10px; }
 
-        .logo-icon {
-            background-color: #3b82f6;
-            padding: 10px;
-            border-radius: 8px;
-            font-size: 20px;
-        }
-
-        .brand-title h1 {
-            font-size: 18px;
-            font-weight: 700;
-        }
-
-        .brand-title h1 span {
-            background-color: #3730a3;
-            color: #c7d2fe;
-            font-size: 11px;
-            padding: 2px 6px;
-            border-radius: 4px;
-            margin-left: 8px;
-            vertical-align: middle;
-        }
-
-        .brand-title p {
-            font-size: 12px;
-            color: #9ca3af;
-            margin-top: 2px;
-        }
-
-        .header-buttons {
-            display: flex;
-            gap: 10px;
-        }
-
-        .btn {
-            padding: 10px 16px;
-            border-radius: 6px;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            border: none;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            text-decoration: none;
-        }
-
-        .btn-primary {
-            background-color: #4f46e5;
-            color: white;
-        }
-
-        .btn-secondary {
-            background-color: #1f2937;
-            color: #d1d5db;
-            border: 1px solid #374151;
-        }
+        .btn { padding: 10px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; display: flex; align-items: center; gap: 8px; }
+        .btn-primary { background-color: #4f46e5; color: white; }
+        .btn-success { background-color: #10b981; color: white; width: 100%; justify-content: center; margin-top: 5px; }
 
         /* MAIN LAYOUT */
-        .main-container {
-            display: flex;
-            flex: 1;
-            overflow: hidden;
-        }
+        .main-container { display: flex; flex: 1; overflow: hidden; }
 
         /* SIDEBAR (LEFT) */
-        .sidebar {
-            width: 320px;
-            background-color: #0f172a;
-            border-right: 1px solid #1e293b;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            overflow-y: auto;
-        }
+        .sidebar { width: 350px; background-color: #0f172a; border-right: 1px solid #1e293b; padding: 20px; display: flex; flex-direction: column; gap: 15px; overflow-y: auto; }
 
         /* STATS CARDS */
-        .stats-container {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-        }
-
-        .stat-card {
-            background-color: #0b111e;
-            border: 1px solid #1e293b;
-            border-radius: 6px;
-            padding: 12px 5px;
-            text-align: center;
-        }
-
-        .stat-card p {
-            font-size: 11px;
-            color: #94a3b8;
-            margin-bottom: 5px;
-        }
-
-        .stat-card h3 {
-            font-size: 18px;
-            font-weight: 700;
-        }
-
+        .stats-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .stat-card { background-color: #0b111e; border: 1px solid #1e293b; border-radius: 6px; padding: 12px 5px; text-align: center; }
+        .stat-card p { font-size: 11px; color: #94a3b8; margin-bottom: 5px; }
+        .stat-card h3 { font-size: 18px; font-weight: 700; }
         .stat-odc { color: #3b82f6; }
         .stat-odp { color: #10b981; }
         .stat-client { color: #60a5fa; }
 
+        /* MODE SELECTOR BUTTONS */
+        .mode-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; background: #0b111e; padding: 8px; border-radius: 6px; border: 1px solid #1e293b; }
+        .btn-mode { padding: 8px; font-size: 11px; font-weight: 600; border-radius: 4px; cursor: pointer; border: 1px solid #334155; background: #1e293b; color: #94a3b8; text-align: center; }
+        .btn-mode.active[data-mode="ODC"] { background: #2563eb; color: white; border-color: #3b82f6; }
+        .btn-mode.active[data-mode="ODP"] { background: #059669; color: white; border-color: #10b981; }
+        .btn-mode.active[data-mode="CLIENT"] { background: #4f46e5; color: white; border-color: #6366f1; }
+
         /* FORM BOX */
-        .form-box {
-            background-color: #0b111e;
-            border: 1px solid #1e293b;
-            border-radius: 8px;
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
+        .form-box { background-color: #0b111e; border: 1px solid #1e293b; border-radius: 8px; padding: 15px; display: flex; flex-direction: column; gap: 12px; }
+        .form-title { font-size: 13px; font-weight: 700; color: #60a5fa; display: flex; align-items: center; gap: 8px; }
+        .tips-box { background-color: #0c1530; border: 1px solid #1e3a8a; border-radius: 6px; padding: 10px; font-size: 11px; color: #93c5fd; line-height: 1.4; }
+        .input-group { display: flex; flex-direction: column; gap: 6px; }
+        .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        label { font-size: 11px; color: #94a3b8; }
+        input, select { background-color: #1e293b; border: 1px solid #334155; color: white; padding: 10px; border-radius: 6px; font-size: 13px; outline: none; width: 100%; }
 
-        .form-header {
+        /* TABEL DATA */
+        .table-box { background-color: #0b111e; border: 1px solid #1e293b; border-radius: 8px; padding: 12px; }
+        .table-title { font-size: 12px; font-weight: 700; color: #94a3b8; margin-bottom: 10px; }
+        .client-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+        .client-table th, .client-table td { padding: 8px 5px; border-bottom: 1px solid #1e293b; text-align: left; }
+        .client-table th { color: #64748b; }
+
+        /* MAP AREA */
+        .map-container { flex: 1; background-color: #050b14; position: relative; }
+        #map { width: 100%; height: 100%; }
+
+        /* MODAL WINDOW FOR CORE MANAGER */
+        .modal-overlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75); z-index: 9999; justify-content: center; align-items: center; }
+        .modal-content { background: #0f172a; width: 650px; border-radius: 12px; border: 1px solid #1e293b; padding: 25px; display: flex; flex-direction: column; gap: 15px; max-height: 85vh; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1e293b; padding-bottom: 10px; }
+        .modal-header h2 { font-size: 16px; color: #60a5fa; }
+        .close-modal { background: none; border: none; color: #64748b; font-size: 18px; cursor: pointer; }
+        
+        .core-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 10px; }
+        .core-item { border-radius: 6px; padding: 10px; font-size: 11px; text-align: center; border: 1px solid #334155; background: #1e293b; }
+        .tube-blue { border-left: 5px solid #2563eb; }
+        .tube-orange { border-left: 5px solid #f97316; }
+        .tube-green { border-left: 5px solid #10b981; }
+        .tube-brown { border-left: 5px solid #78350f; }
+
+        /* DESAIN GAMBAR ICON MAP CUSTOM */
+        .custom-map-icon {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-        }
-
-        .form-title {
-            font-size: 13px;
-            font-weight: 700;
-            color: #60a5fa;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .form-subtitle {
-            font-size: 10px;
-            color: #64748b;
-            font-style: italic;
-        }
-
-        .tips-box {
-            background-color: #0c1530;
-            border: 1px solid #1e3a8a;
-            border-radius: 6px;
-            padding: 10px;
-            font-size: 11px;
-            color: #93c5fd;
-            line-height: 1.4;
-        }
-
-        .tips-box strong {
-            color: #3b82f6;
-        }
-
-        .input-group {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        .input-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-
-        label {
-            font-size: 11px;
-            color: #94a3b8;
-        }
-
-        input, select {
-            background-color: #1e293b;
-            border: 1px solid #334155;
+            justify-content: center;
+            border-radius: 50%;
             color: white;
-            padding: 10px;
-            border-radius: 6px;
-            font-size: 13px;
-            outline: none;
-            width: 100%;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            border: 2px solid #ffffff;
         }
-
-        input::placeholder {
-            color: #64748b;
-        }
-
-        input:focus, select:focus {
-            border-color: #4f46e5;
-        }
-
-        /* MAP AREA (RIGHT) */
-        .map-container {
-            flex: 1;
-            background-color: #050b14;
-            position: relative;
-        }
-
-        #map {
-            width: 100%;
-            height: 100%;
-        }
+        .icon-odc-bg { background-color: #2563eb; }
+        .icon-odp-bg { background-color: #059669; }
+        .icon-client-bg { background-color: #d97706; }
     </style>
 </head>
 <body>
 
+    <!-- CORE MANAGER POPUP MODAL -->
+    <div class="modal-overlay" id="coreModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-network-wired"></i> Core & Splicing Manager (FIBER OPTIC Edition)</h2>
+                <button class="close-modal" id="closeModalBtn">&times;</button>
+            </div>
+            <p style="font-size:12px; color:#94a3b8;">Status distribusi core aktif berdasarkan data ODP & perangkat yang terpasang saat ini:</p>
+            
+            <h3 style="font-size:13px; color:#10b981; margin-top:5px;">Tube 1 (Core 1-6)</h3>
+            <div class="core-grid" id="tube1_elements"></div>
+            
+            <h3 style="font-size:13px; color:#f97316; margin-top:5px;">Tube 2 (Core 7-12)</h3>
+            <div class="core-grid" id="tube2_elements"></div>
+
+            <h3 style="font-size:13px; color:#3b82f6; margin-top:5px;">Tube 3 & 4 (Core 13-24)</h3>
+            <div class="core-grid" id="tube34_elements"></div>
+        </div>
+    </div>
+
     <!-- HEADER -->
     <header>
         <div class="brand-section">
-            <div class="logo-icon">
-                <i class="fas fa-network-wired"></i>
-            </div>
+            <div class="logo-icon"><i class="fas fa-network-wired"></i></div>
             <div class="brand-title">
-                <h1>FO-Map Pro <span>ADSS 24 Core Edition</span></h1>
-                <p>Aplikasi Simulasi & Perencanaan FTTH dari 0</p>
+                <h1>sas.mapping.id <span>FIBER OPTIC TJN EDITION</span></h1>
+                <p>Aplikasi Perencanaan/Pembangunan FTTH </p>
             </div>
         </div>
         <div class="header-buttons">
-            <button class="btn btn-primary"><i class="fas fa-map-marked-alt"></i> Peta & Core Manager</button>
-            <button class="btn btn-secondary"><i class="fas fa-book"></i> Panduan Pembuatan (Mulai dari 0)</button>
+            <button class="btn btn-primary" id="openModalBtn"><i class="fas fa-map-marked-alt"></i> Peta & Core Manager</button>
         </div>
     </header>
 
     <!-- MAIN LAYOUT -->
     <div class="main-container">
         
-        <!-- SIDEBAR FORM -->
+        <!-- SIDEBAR -->
         <div class="sidebar">
             
-            <!-- TOP COUNTER -->
+            <!-- STATS COUNTER -->
             <div class="stats-container">
                 <div class="stat-card">
                     <p>Total ODC</p>
-                    <h3 class="stat-odc">1</h3>
+                    <h3 class="stat-odc" id="count_odc">0</h3>
                 </div>
                 <div class="stat-card">
                     <p>Total ODP</p>
-                    <h3 class="stat-odp">2</h3>
+                    <h3 class="stat-odp" id="count_odp">0</h3>
                 </div>
                 <div class="stat-card">
                     <p>Client Baru</p>
-                    <h3 class="stat-client">3</h3>
+                    <h3 class="stat-client" id="count_client">0</h3>
                 </div>
             </div>
 
-            <!-- FORM TAMBAH CLIENT -->
+            <!-- CHOOSE OBJECT MODE -->
+            <label style="margin-bottom: -5px; display:block;">1. Pilih Mode Penempatan Item Peta:</label>
+            <div class="mode-container">
+                <div class="btn-mode" data-mode="ODC"><i class="fas fa-server"></i> + ODC</div>
+                <div class="btn-mode" data-mode="ODP"><i class="fas fa-box"></i> + ODP</div>
+                <div class="btn-mode active" data-mode="CLIENT"><i class="fas fa-home"></i> + Client</div>
+            </div>
+
+            <!-- FORM INPUT -->
             <div class="form-box">
-                <div class="form-header">
-                    <div class="form-title">
-                        <i class="fas fa-user-plus"></i> TAMBAH CLIENT BARU
-                    </div>
-                    <div class="form-subtitle">tim lapangan</div>
-                </div>
-
+                <div class="form-title" id="form_title_txt"><i class="fas fa-home"></i> DATA ITEM BARU</div>
+                
                 <div class="tips-box">
-                    <i class="fas fa-info-circle"></i> <strong>Tips:</strong> Klik area mana saja pada peta sebelah kanan untuk <strong>mengunci Tikor secara Instan</strong> (Simulasi GPS teknisi).
+                    <i class="fas fa-info-circle"></i> <strong>Langkah:</strong> Pilih mode di atas, klik lokasi pada peta untuk ambil koordinat, isi form, lalu klik simpan.
                 </div>
 
-                <div class="input-group">
-                    <label>Nama Pelanggan</label>
-                    <input type="text" id="nama_pelanggan" placeholder="Contoh: Budi Santoso">
+                <!-- Input Dinamis Tergantung Mode -->
+                <div class="input-group" id="group_nama">
+                    <label id="label_nama">Nama Pelanggan / Nama Perangkat</label>
+                    <input type="text" id="input_name" placeholder="Contoh: Budi Santoso / ODC-Pusat">
                 </div>
 
                 <div class="input-row">
                     <div class="input-group">
                         <label>Tikor (Latitude)</label>
-                        <input type="number" id="lat" value="-6.2088" step="0.0001">
+                        <input type="number" id="lat" value="-6.2088" step="0.000001">
                     </div>
                     <div class="input-group">
                         <label>Tikor (Longitude)</label>
-                        <input type="number" id="lng" value="106.8456" step="0.0001">
+                        <input type="number" id="lng" value="106.8456" step="0.000001">
                     </div>
                 </div>
 
-                <div class="input-row">
+                <!-- Opsi Relasi Khusus Client & ODP -->
+                <div class="input-row" id="client_relation_fields">
                     <div class="input-group">
-                        <label>Pilih ODP Terdekat</label>
-                        <select id="odp_select">
-                            <option>ODP-A01 (ODP RT 01)</option>
-                            <option>ODP-A02 (ODP RT 02)</option>
+                        <label>Hubungkan ke ODP</label>
+                        <select id="select_odp_parent">
+                            <option value="">-- Pilih ODP Terdekat --</option>
                         </select>
                     </div>
                     <div class="input-group">
-                        <label>Port ODP</label>
-                        <select id="port_select">
-                            <option>Port 1</option>
-                            <option>Port 2</option>
-                            <option>Port 3</option>
-                            <option>Port 4</option>
+                        <label>Pilih Port ODP</label>
+                        <select id="select_port">
+                            <option>Port 1</option><option>Port 2</option>
+                            <option>Port 3</option><option>Port 4</option>
+                            <option>Port 5</option><option>Port 6</option>
+                            <option>Port 7</option><option>Port 8</option>
                         </select>
                     </div>
                 </div>
 
-                <div class="input-group">
+                <div class="input-group" id="odp_relation_fields" style="display:none;">
+                    <label>Hubungkan ke ODC parent</label>
+                    <select id="select_odc_parent">
+                        <option value="">-- Pilih ODC --</option>
+                    </select>
+                </div>
+
+                <div class="input-group" id="group_redaman">
                     <label>Redaman Hasil Ukur OPM (dBm)</label>
                     <input type="text" id="redaman" value="-19.5">
                 </div>
+
+                <button class="btn btn-success" id="btn_save"><i class="fas fa-save"></i> Simpan ke Server Lokal</button>
+            </div>
+
+            <!-- REKAP LIST -->
+            <div class="table-box">
+                <div class="table-title"><i class="fas fa-list"></i> Log Aktivitas Jaringan</div>
+                <table class="client-table">
+                    <thead>
+                        <tr>
+                            <th>Tipe</th>
+                            <th>Nama Item</th>
+                            <th>Relasi / Info</th>
+                        </tr>
+                    </thead>
+                    <tbody id="log_table_body"></tbody>
+                </table>
             </div>
 
         </div>
 
-        <!-- AREA PETA -->
+        <!-- CONTAINER MAP -->
         <div class="map-container">
             <div id="map"></div>
         </div>
 
     </div>
 
-    <!-- Leaflet JS untuk mengaktifkan Peta -->
+    <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // 1. Inisialisasi Peta (Default koordinat Jakarta sesuai gambar: -6.2088, 106.8456)
-        const defaultLat = -6.2088;
-        const defaultLng = 106.8456;
-        
-        const map = L.map('map').setView([defaultLat, defaultLng], 13);
+        // Inisialisasi peta dasar
+        const map = L.map('map').setView([2.326685, 99.093518], 14);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { attribution: 'OSM & CARTO' }).addTo(map);
 
-        // 2. Menggunakan tema peta Dark Mode agar serasi dengan Dashboard
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-            subdomains: 'abcd',
-            maxZoom: 20
-        }).addTo(map);
+        // Penunjuk Klik Sementara di peta
+        let pointerMarker = L.marker([2.326685, 99.093518], { opacity: 0.5 }).addTo(map);
 
-        // 3. Tambahkan Marker (Penanda) awal di peta
-        let marker = L.marker([defaultLat, defaultLng]).addTo(map)
-            .bindPopup('Lokasi Client Baru')
-            .openPopup();
+        let currentMode = "CLIENT"; 
+        let dataODC = [];
+        let dataODP = [];
+        let dataClient = [];
 
-        // 4. Fitur Interaktif: Klik peta untuk mengubah koordinat di Form secara otomatis
-        map.on('click', function(e) {
-            const clickedLat = e.latlng.lat.toFixed(6);
-            const clickedLng = e.latlng.lng.toFixed(6);
-
-            // Update nilai di dalam input form
-            document.getElementById('lat').value = clickedLat;
-            document.getElementById('lng').value = clickedLng;
-
-            // Pindahkan posisi penanda (marker) ke titik yang diklik
-            marker.setLatLng(e.latlng);
-            marker.setPopupContent(`Koordinat Terkunci: <br> ${clickedLat}, ${clickedLng}`).openPopup();
+        // PEMBUATAN IKON REPRODUKSI SIMBOL GAMBAR JARINGAN (ODC, ODP, CLIENT)
+        const iconODC = L.divIcon({
+            html: '<div class="custom-map-icon icon-odc-bg" style="width:34px;height:34px;"><i class="fas fa-server" style="font-size:16px;"></i></div>',
+            className: '', iconSize: [34, 34], iconAnchor: [17, 17], popupAnchor: [0, -17]
         });
 
-        // 5. Fitur Interaktif: Jika angka koordinat di form diketik manual, peta ikut bergeser
-        document.getElementById('lat').addEventListener('input', updateMarkerFromForm);
-        document.getElementById('lng').addEventListener('input', updateMarkerFromForm);
+        const iconODP = L.divIcon({
+            html: '<div class="custom-map-icon icon-odp-bg" style="width:30px;height:30px;"><i class="fas fa-box" style="font-size:13px;"></i></div>',
+            className: '', iconSize: [30, 30], iconAnchor: [15, 15], popupAnchor: [0, -15]
+        });
 
-        function updateMarkerFromForm() {
-            const latVal = parseFloat(document.getElementById('lat').value);
-            const lngVal = parseFloat(document.getElementById('lng').value);
+        const iconClient = L.divIcon({
+            html: '<div class="custom-map-icon icon-client-bg" style="width:26px;height:26px;"><i class="fas fa-home" style="font-size:11px;"></i></div>',
+            className: '', iconSize: [26, 26], iconAnchor: [13, 13], popupAnchor: [0, -13]
+        });
 
-            if (!isNaN(latVal) && !isNaN(lngVal)) {
-                const newLatLng = new L.LatLng(latVal, lngVal);
-                marker.setLatLng(newLatLng);
-                map.panTo(newLatLng);
+        // Core Manager Popup Interactions
+        const modal = document.getElementById('coreModal');
+        document.getElementById('openModalBtn').addEventListener('click', () => { renderCoreStatus(); modal.style.display = 'flex'; });
+        document.getElementById('closeModalBtn').addEventListener('click', () => { modal.style.display = 'none'; });
+
+        function renderCoreStatus() {
+            const t1 = document.getElementById('tube1_elements');
+            const t2 = document.getElementById('tube2_elements');
+            const t34 = document.getElementById('tube34_elements');
+            t1.innerHTML = ''; t2.innerHTML = ''; t34.innerHTML = '';
+
+            for (let i = 1; i <= 24; i++) {
+                let tubeClass = 'tube-blue'; let targetGrid = t1;
+                if(i > 6 && i <= 12) { tubeClass = 'tube-orange'; targetGrid = t2; }
+                else if(i > 12 && i <= 18) { tubeClass = 'tube-green'; targetGrid = t34; }
+                else if(i > 18) { tubeClass = 'tube-brown'; targetGrid = t34; }
+
+                let matchedODP = dataODP[i - 1]; 
+                let statusText = matchedODP ? `Connected: ${matchedODP.name}` : 'KOSONG (Idle)';
+                let bgColor = matchedODP ? 'background:#065f46;' : '';
+
+                targetGrid.innerHTML += `<div class="core-item ${tubeClass}" style="${bgColor}">
+                    <strong>Core ${i}</strong><br><span style="font-size:10px; opacity:0.8;">${statusText}</span>
+                </div>`;
             }
         }
-    </style>
+
+        // Sistem Ganti Tampilan Form Berdasarkan Pilihan Mode tombol
+        document.querySelectorAll('.btn-mode').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.btn-mode').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentMode = this.getAttribute('data-mode');
+                
+                if(currentMode === "ODC") {
+                    document.getElementById('form_title_txt').innerHTML = '<i class="fas fa-server"></i> INPUT DATA ODC BARU';
+                    document.getElementById('label_nama').innerText = "Nama / Kode ODC";
+                    document.getElementById('input_name').placeholder = "Contoh: ODC-CENTRAL-01";
+                    document.getElementById('client_relation_fields').style.display = "none";
+                    document.getElementById('odp_relation_fields').style.display = "none";
+                    document.getElementById('group_redaman').style.display = "none";
+                } else if(currentMode === "ODP") {
+                    document.getElementById('form_title_txt').innerHTML = '<i class="fas fa-box"></i> INPUT DATA ODP BARU';
+                    document.getElementById('label_nama').innerText = "Nama / Kode ODP";
+                    document.getElementById('input_name').placeholder = "Contoh: ODP-A01 (RT 02)";
+                    document.getElementById('client_relation_fields').style.display = "none";
+                    document.getElementById('odp_relation_fields').style.display = "block";
+                    document.getElementById('group_redaman').style.display = "none";
+                } else {
+                    document.getElementById('form_title_txt').innerHTML = '<i class="fas fa-home"></i> INPUT CLIENT BARU';
+                    document.getElementById('label_nama').innerText = "Nama Pelanggan";
+                    document.getElementById('input_name').placeholder = "Contoh: Budi Santoso";
+                    document.getElementById('client_relation_fields').style.display = "grid";
+                    document.getElementById('odp_relation_fields').style.display = "none";
+                    document.getElementById('group_redaman').style.display = "block";
+                }
+            });
+        });
+
+        map.on('click', function(e) {
+            const lat = e.latlng.lat.toFixed(6);
+            const lng = e.latlng.lng.toFixed(6);
+            document.getElementById('lat').value = lat;
+            document.getElementById('lng').value = lng;
+            pointerMarker.setLatLng(e.latlng);
+        });
+
+        function refreshDropdowns() {
+            const odcSelect = document.getElementById('select_odc_parent');
+            const odpSelect = document.getElementById('select_odp_parent');
+            odcSelect.innerHTML = '<option value="">-- Pilih ODC Parent --</option>';
+            dataODC.forEach(odc => { odcSelect.innerHTML += `<option value="${odc.name}">${odc.name}</option>`; });
+            odpSelect.innerHTML = '<option value="">-- Pilih ODP Terdekat --</option>';
+            dataODP.forEach(odp => { odpSelect.innerHTML += `<option value="${odp.name}">${odp.name}</option>`; });
+        }
+
+        // TOMBOL SIMPAN DIKLIK
+        document.getElementById('btn_save').addEventListener('click', function() {
+            const name = document.getElementById('input_name').value.trim();
+            const lat = parseFloat(document.getElementById('lat').value);
+            const lng = parseFloat(document.getElementById('lng').value);
+
+            if(name === "") { alert("Nama / Kode tidak boleh kosong!"); return; }
+            let infoRelasi = "-";
+            
+            if(currentMode === "ODC") {
+                dataODC.push({ name, lat, lng });
+                // Munculkan Ikon Lemari Server ODC
+                L.marker([lat, lng], {icon: iconODC}).addTo(map).bindPopup(`<b>[ODC] Sentral</b><br>Nama: ${name}`).openPopup();
+                document.getElementById('count_odc').innerText = dataODC.length;
+                infoRelasi = "Sentral Distribusi";
+
+            } else if(currentMode === "ODP") {
+                const parentOdc = document.getElementById('select_odc_parent').value;
+                dataODP.push({ name, lat, lng, parentOdc });
+                
+                // Munculkan Ikon Kotak ODP
+                L.marker([lat, lng], {icon: iconODP}).addTo(map).bindPopup(`<b>[ODP] Kotak Pembagi</b><br>Nama: ${name}<br>Induk: ${parentOdc || 'Murni Standalone'}`).openPopup();
+                
+                // OTOMATIS TARIK GARIS KABEL DISTRIBUTION (HIJAU TEBAL PUTUS-PUTUS)
+                if(parentOdc) {
+                    const odcObj = dataODC.find(o => o.name === parentOdc);
+                    if(odcObj) { 
+                        L.polyline([[odcObj.lat, odcObj.lng], [lat, lng]], {color: '#10b981', weight: 4, dashArray: '6, 6'}).addTo(map); 
+                    }
+                }
+                document.getElementById('count_odp').innerText = dataODP.length;
+                infoRelasi = parentOdc ? `Induk ODC: ${parentOdc}` : "Standalone";
+
+            } else if(currentMode === "CLIENT") {
+                const parentOdp = document.getElementById('select_odp_parent').value;
+                const port = document.getElementById('select_port').value;
+                const opm = document.getElementById('redaman').value;
+                dataClient.push({ name, lat, lng, parentOdp, port, opm });
+
+                // Munculkan Ikon Rumah Client
+                L.marker([lat, lng], {icon: iconClient}).addTo(map).bindPopup(`<b>[Client] Rumah Pelanggan</b><br>Nama: ${name}<br>Koneksi: ${parentOdp} (${port})<br>Redaman: ${opm} dBm`).openPopup();
+                
+                // OTOMATIS TARIK GARIS KABEL DROPCORE KE RUMAH CLIENT (BIRU TIPIS SOLID)
+                if(parentOdp) {
+                    const odpObj = dataODP.find(p => p.name === parentOdp);
+                    if(odpObj) { 
+                        L.polyline([[odpObj.lat, odpObj.lng], [lat, lng]], {color: '#3b82f6', weight: 2.5}).addTo(map); 
+                    }
+                }
+                document.getElementById('count_client').innerText = dataClient.length;
+                infoRelasi = `${parentOdp} (${port})`;
+            }
+
+            const tr = `<tr>
+                <td><strong style="color:${currentMode==='ODC'?'#3b82f6':currentMode==='ODP'?'#10b981':'#f59e0b'}">${currentMode}</strong></td>
+                <td>${name}</td>
+                <td>${infoRelasi}</td>
+            </tr>`;
+            document.getElementById('log_table_body').innerHTML += tr;
+
+            document.getElementById('input_name').value = "";
+            refreshDropdowns();
+            alert(`Sukses memetakan ${currentMode}: ${name}`);
+        });
+    </script>
 </body>
 </html>
