@@ -47,6 +47,7 @@
         .btn { padding: 10px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; display: flex; align-items: center; gap: 8px; }
         .btn-primary { background-color: #4f46e5; color: white; }
         .btn-success { background-color: #10b981; color: white; width: 100%; justify-content: center; margin-top: 5px; }
+        .btn-danger { background-color: #ef4444; color: white; width: 100%; justify-content: center; margin-top: 5px; font-size: 11px; padding: 6px; }
 
         /* MAIN LAYOUT */
         .main-container { display: flex; flex: 1; overflow: hidden; }
@@ -242,6 +243,7 @@
                 </div>
 
                 <button class="btn btn-success" id="btn_save"><i class="fas fa-save"></i> Simpan ke Server Lokal</button>
+                <button class="btn btn-danger" id="btn_clear_data"><i class="fas fa-trash-alt"></i> Hapus Semua Data Peta</button>
             </div>
 
             <!-- REKAP LIST -->
@@ -279,9 +281,14 @@
         let pointerMarker = L.marker([2.326685, 99.093518], { opacity: 0.5 }).addTo(map);
 
         let currentMode = "CLIENT"; 
-        let dataODC = [];
-        let dataODP = [];
-        let dataClient = [];
+        
+        // AMBIL DATA DARI MEMORI LOKAL PC (LOCALSTORAGE) JIKA ADA
+        let dataODC = JSON.parse(localStorage.getItem('fomap_dataODC')) || [];
+        let dataODP = JSON.parse(localStorage.getItem('fomap_dataODP')) || [];
+        let dataClient = JSON.parse(localStorage.getItem('fomap_dataClient')) || [];
+
+        // Kumpulan layer untuk menyimpan penanda gambar di peta agar gampang dihapus/di-render ulang
+        let mapLayers = L.layerGroup().addTo(map);
 
         // PEMBUATAN IKON REPRODUKSI SIMBOL GAMBAR JARINGAN (ODC, ODP, CLIENT)
         const iconODC = L.divIcon({
@@ -369,10 +376,61 @@
         function refreshDropdowns() {
             const odcSelect = document.getElementById('select_odc_parent');
             const odpSelect = document.getElementById('select_odp_parent');
-            odcSelect.innerHTML = '<option value="">-- Pilih ODC Parent --</option>';
-            dataODC.forEach(odc => { odcSelect.innerHTML += `<option value="${odc.name}">${odc.name}</option>`; });
-            odpSelect.innerHTML = '<option value="">-- Pilih ODP Terdekat --</option>';
-            dataODP.forEach(odp => { odpSelect.innerHTML += `<option value="${odp.name}">${odp.name}</option>`; });
+            if(odcSelect) odcSelect.innerHTML = '<option value="">-- Pilih ODC Parent --</option>';
+            dataODC.forEach(odc => { if(odcSelect) odcSelect.innerHTML += `<option value="${odc.name}">${odc.name}</option>`; });
+            if(odpSelect) odpSelect.innerHTML = '<option value="">-- Pilih ODP Terdekat --</option>';
+            dataODP.forEach(odp => { if(odpSelect) odpSelect.innerHTML += `<option value="${odp.name}">${odp.name}</option>`; });
+        }
+
+        // FUNGSI UTAMALoad DATA DARI PC KE PETA OTOMATIS
+        function loadSavedDataToMap() {
+            mapLayers.clearLayers();
+            document.getElementById('log_table_body').innerHTML = '';
+            
+            // Render ODC
+            dataODC.forEach(odc => {
+                L.marker([odc.lat, odc.lng], {icon: iconODC}).addTo(mapLayers).bindPopup(`<b>[ODC] Sentral</b><br>Nama: ${odc.name}`);
+                appendLogTable("ODC", odc.name, "Sentral Distribusi");
+            });
+
+            // Render ODP & Garis Hijau
+            dataODP.forEach(odp => {
+                L.marker([odp.lat, odp.lng], {icon: iconODP}).addTo(mapLayers).bindPopup(`<b>[ODP] Kotak Pembagi</b><br>Nama: ${odp.name}<br>Induk: ${odp.parentOdc || 'Murni Standalone'}`);
+                if(odp.parentOdc) {
+                    const odcObj = dataODC.find(o => o.name === odp.parentOdc);
+                    if(odcObj) { 
+                        L.polyline([[odcObj.lat, odcObj.lng], [odp.lat, odp.lng]], {color: '#10b981', weight: 4, dashArray: '6, 6'}).addTo(mapLayers); 
+                    }
+                }
+                appendLogTable("ODP", odp.name, odp.parentOdc ? `Induk ODC: ${odp.parentOdc}` : "Standalone");
+            });
+
+            // Render Client & Garis Biru Dropcore
+            dataClient.forEach(cli => {
+                L.marker([cli.lat, cli.lng], {icon: iconClient}).addTo(mapLayers).bindPopup(`<b>[Client] Rumah Pelanggan</b><br>Nama: ${cli.name}<br>Koneksi: ${cli.parentOdp} (${cli.port})<br>Redaman: ${cli.opm} dBm`);
+                if(cli.parentOdp) {
+                    const odpObj = dataODP.find(p => p.name === cli.parentOdp);
+                    if(odpObj) { 
+                        L.polyline([[odpObj.lat, odpObj.lng], [cli.lat, cli.lng]], {color: '#3b82f6', weight: 2.5}).addTo(mapLayers); 
+                    }
+                }
+                appendLogTable("CLIENT", cli.name, `${cli.parentOdp} (${cli.port})`);
+            });
+
+            document.getElementById('count_odc').innerText = dataODC.length;
+            document.getElementById('count_odp').innerText = dataODP.length;
+            document.getElementById('count_client').innerText = dataClient.length;
+            refreshDropdowns();
+        }
+
+        function appendLogTable(mode, name, info) {
+            const color = mode==='ODC'?'#3b82f6':mode==='ODP'?'#10b981':'#f59e0b';
+            const tr = `<tr>
+                <td><strong style="color:${color}">${mode}</strong></td>
+                <td>${name}</td>
+                <td>${info}</td>
+            </tr>`;
+            document.getElementById('log_table_body').innerHTML += tr;
         }
 
         // TOMBOL SIMPAN DIKLIK
@@ -382,63 +440,39 @@
             const lng = parseFloat(document.getElementById('lng').value);
 
             if(name === "") { alert("Nama / Kode tidak boleh kosong!"); return; }
-            let infoRelasi = "-";
             
             if(currentMode === "ODC") {
                 dataODC.push({ name, lat, lng });
-                // Munculkan Ikon Lemari Server ODC
-                L.marker([lat, lng], {icon: iconODC}).addTo(map).bindPopup(`<b>[ODC] Sentral</b><br>Nama: ${name}`).openPopup();
-                document.getElementById('count_odc').innerText = dataODC.length;
-                infoRelasi = "Sentral Distribusi";
-
+                localStorage.setItem('fomap_dataODC', JSON.stringify(dataODC));
             } else if(currentMode === "ODP") {
                 const parentOdc = document.getElementById('select_odc_parent').value;
                 dataODP.push({ name, lat, lng, parentOdc });
-                
-                // Munculkan Ikon Kotak ODP
-                L.marker([lat, lng], {icon: iconODP}).addTo(map).bindPopup(`<b>[ODP] Kotak Pembagi</b><br>Nama: ${name}<br>Induk: ${parentOdc || 'Murni Standalone'}`).openPopup();
-                
-                // OTOMATIS TARIK GARIS KABEL DISTRIBUTION (HIJAU TEBAL PUTUS-PUTUS)
-                if(parentOdc) {
-                    const odcObj = dataODC.find(o => o.name === parentOdc);
-                    if(odcObj) { 
-                        L.polyline([[odcObj.lat, odcObj.lng], [lat, lng]], {color: '#10b981', weight: 4, dashArray: '6, 6'}).addTo(map); 
-                    }
-                }
-                document.getElementById('count_odp').innerText = dataODP.length;
-                infoRelasi = parentOdc ? `Induk ODC: ${parentOdc}` : "Standalone";
-
+                localStorage.setItem('fomap_dataODP', JSON.stringify(dataODP));
             } else if(currentMode === "CLIENT") {
                 const parentOdp = document.getElementById('select_odp_parent').value;
                 const port = document.getElementById('select_port').value;
                 const opm = document.getElementById('redaman').value;
                 dataClient.push({ name, lat, lng, parentOdp, port, opm });
-
-                // Munculkan Ikon Rumah Client
-                L.marker([lat, lng], {icon: iconClient}).addTo(map).bindPopup(`<b>[Client] Rumah Pelanggan</b><br>Nama: ${name}<br>Koneksi: ${parentOdp} (${port})<br>Redaman: ${opm} dBm`).openPopup();
-                
-                // OTOMATIS TARIK GARIS KABEL DROPCORE KE RUMAH CLIENT (BIRU TIPIS SOLID)
-                if(parentOdp) {
-                    const odpObj = dataODP.find(p => p.name === parentOdp);
-                    if(odpObj) { 
-                        L.polyline([[odpObj.lat, odpObj.lng], [lat, lng]], {color: '#3b82f6', weight: 2.5}).addTo(map); 
-                    }
-                }
-                document.getElementById('count_client').innerText = dataClient.length;
-                infoRelasi = `${parentOdp} (${port})`;
+                localStorage.setItem('fomap_dataClient', JSON.stringify(dataClient));
             }
 
-            const tr = `<tr>
-                <td><strong style="color:${currentMode==='ODC'?'#3b82f6':currentMode==='ODP'?'#10b981':'#f59e0b'}">${currentMode}</strong></td>
-                <td>${name}</td>
-                <td>${infoRelasi}</td>
-            </tr>`;
-            document.getElementById('log_table_body').innerHTML += tr;
-
             document.getElementById('input_name').value = "";
-            refreshDropdowns();
-            alert(`Sukses memetakan ${currentMode}: ${name}`);
+            loadSavedDataToMap();
+            alert(`Sukses menyimpan ${currentMode}: ${name} ke memori PC lokal.`);
         });
+
+        // TOMBOL RESET / HAPUS SEMUA DATA DI PC
+        document.getElementById('btn_clear_data').addEventListener('click', function() {
+            if(confirm("Apakah kamu yakin ingin menghapus seluruh data peta di PC ini? Data yang terhapus tidak bisa dikembalikan.")) {
+                localStorage.clear();
+                dataODC = []; dataODP = []; dataClient = [];
+                loadSavedDataToMap();
+                alert("Semua data lokal berhasil dibersihkan!");
+            }
+        });
+
+        // OTOMATIS JALANKAN READ MEMORI SAAT SELESAI LOADING HALAMAN
+        loadSavedDataToMap();
     </script>
 </body>
 </html>
